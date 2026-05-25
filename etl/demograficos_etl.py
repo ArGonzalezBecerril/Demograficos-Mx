@@ -10,6 +10,7 @@ class RawDemograficosEtl:
         self.df_demograficos = None
         self.df_demograficos_raw = None
         self.spark = spark
+        self.ruta_destino = "datos/salida/bronce"
 
     def extraccion(self):
         lector = DemograficoJson(self.ruta_archivo)
@@ -37,7 +38,7 @@ class RawDemograficosEtl:
         """)
 
     def carga(self):
-        self.df_demograficos_raw.coalesce(1).write.mode("overwrite").parquet("datos/salida/bronce")
+        self.df_demograficos_raw.coalesce(1).write.mode("overwrite").parquet(self.ruta_destino)
         logging.info("[CARGA] Capa Bronce guardada exitosamente en datos/salida/bronce")
 
 
@@ -47,6 +48,7 @@ class CommonDemograficosEtl:
         self.df_demograficos = None
         self.df_demograficos_common = None
         self.spark = spark
+        self.ruta_destino = "datos/salida/plata"
 
     def extraccion(self):
         lector = DemograficoParquet(self.ruta_archivo)
@@ -115,7 +117,7 @@ class CommonDemograficosEtl:
         self.df_demograficos_common = self.renombrado_de_campos(df_demograf_common)
 
     def carga(self):
-        self.df_demograficos_common.coalesce(1).write.mode("overwrite").parquet("datos/salida/plata")
+        self.df_demograficos_common.coalesce(1).write.mode("overwrite").parquet(self.ruta_destino)
         logging.info("[CARGA] Capa Plata guardada exitosamente en datos/salida/plata")
 
     def renombrado_de_campos(self, df_demograficos):
@@ -180,7 +182,7 @@ class BussinesDemograficosEtl:
         self.df_mtra_demografia = None
         self.df_demograficos_calidad = None
         self.spark = spark
-        self.ruta_bussines = "datos/salida/oro/"
+        self.ruta_destino = "datos/salida/oro/"
 
     def extraccion(self):
         lector = DemograficoParquet(self.ruta_archivo)
@@ -210,13 +212,9 @@ class BussinesDemograficosEtl:
             F.sum(F.when(F.col("es_registro_alterado") == True, 1).otherwise(0)).alias("total_registros_alterados")
         ).orderBy(F.desc("total_registros_alterados")).withColumn("fyh_carga", F.date_format(F.current_timestamp(), "yyyy-MM-dd HH:mm:ss.SSS"))
 
-        self.df_rangos_edad.show(15,False)
-        self.df_mtra_demografia.show(15,False)
-        self.df_demograficos_calidad.show(15,False)
-
     def carga(self):
-        self.df_rangos_edad.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_bussines}mtra_demograficos")
-        self.df_mtra_demografia.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_bussines}mtra_grp_estados_demograficos")
-        self.df_demograficos_calidad.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_bussines}mtra_kpi_demograficos")
+        self.df_rangos_edad.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_destino}mtra_demograficos")
+        self.df_mtra_demografia.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_destino}mtra_grp_estados_demograficos")
+        self.df_demograficos_calidad.coalesce(1).write.mode("overwrite").parquet(f"{self.ruta_destino}mtra_kpi_demograficos")
 
         logging.info("[CARGA] Capa Oro guardada exitosamente en datos/salida/oro")
