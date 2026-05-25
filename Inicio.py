@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S'
                     )
 
-ruta_json = "/home/arturo/PycharmProjects/mx-demograficos/datos/entrada/personas_dummy.json"
+ruta_json = "datos/entrada/personas_dummy.json"
 ruta_demo_bronce = "datos/salida/bronce"
 ruta_demo_plata = "datos/salida/plata"
 try:
